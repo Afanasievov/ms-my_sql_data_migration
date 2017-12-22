@@ -1,0 +1,15 @@
+{
+  "preset": "airbnb",
+  "excludeFiles": [
+    "node_modules/**",
+    "dist/**",
+    "tools/**"
+  ],
+  "maxErrors": null,
+  "requireTrailingComma": false,
+  "safeContextKeyword": [
+    "self"
+  ],
+  "maximumLineLength": 120,
+  "validateLineBreaks": null
+}
