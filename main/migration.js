@@ -10,10 +10,10 @@
 
 //          PARAMETERS
 
-const db = 'eha'; // [eha|notifications|weather]
-const sourceDB = 'my_devs';
+const db = 'notifications'; // [eha|notifications|weather]
+const sourceDB = 'my_production';
 const targetDB = 'ms_development';
-const notificationUsers = ['migracus@mobidev.biz', 'kris@kris.biz', 'star@star.star', 'tx.dev.single@mobidev.biz'];
+const notificationUsers = [];
 const chunkSize = 200; // max 1000 rows in a chunk for MSSQL
 //
 
@@ -21,6 +21,7 @@ const Sequelize = require('sequelize');
 const uuid = require('uuid/v4');
 const config = require('./config');
 const tables = require('./tables')(db);
+const { mapCampaign, mapNotification, mapDevice } = require('./map_notifications');
 const { getSelectQuery, getInsertQuery, getCountQuery } = require('./query_builder');
 const log = (str) => console.log(`----- ${str} -----`);
 
@@ -84,20 +85,21 @@ const compareRowsCount = () => new Promise((resolve, reject) => {
 });
 
 const migrateNotifications = () => {
-  let campaigns = null;
-  let notifications = null;
-  let ids = null;
+  let campaigns;
+  let notifications;
+  let devices;
+  let ids;
 
   return new Promise((resolve, reject) =>
     log(`${tables.campaigns.source}: selecting`) ||
       seqMY.query(getSelectQuery(tables.campaigns,
         `WHERE isPublic = 0
-        AND (repeatEndDate != '0000-00-00 00:00:00' OR repeatEndDate IS NULL)
+        AND repeatEndDate != '0000-00-00 00:00:00'
         ${notificationUsers.length ? ("AND createByEmail IN ('" + notificationUsers.join("','") + "')") : ''}`), {
         type: seqMY.QueryTypes.SELECT
       })
         .then((data) => {
-          campaigns = data;
+          campaigns = data.map(mapCampaign);
           log(`${tables.notifications.source}: selecting`);
 
           ids = data.map((item) => item.id);
@@ -106,9 +108,7 @@ const migrateNotifications = () => {
           });
         })
         .then((data) => {
-          notifications = data;
-
-          notifications.forEach((notification) => notification.id = uuid());
+          notifications = data.map(mapNotification);
 
           log('Converting ids');
           return ids.forEach((id) => {
@@ -122,22 +122,23 @@ const migrateNotifications = () => {
           });
         })
         .then(() =>
-          log(`${tables.campaigns.target}: inserting`)
-          || bulkInsertMSSQL(tables.campaigns, campaigns, false)
-        )
-        .then(() =>
-          log(`${tables.notifications.target}: inserting`)
-          || bulkInsertMSSQL(tables.notifications, notifications, false)
-        )
-        .then(() =>
-          log(`${tables.devices.source}: selecting`)
-          || seqMY.query(getSelectQuery(tables.devices, 'WHERE isActive = 1', null), {
+          log(`${tables.devices.source}: selecting`) ||
+          seqMY.query(getSelectQuery(tables.devices, 'WHERE isActive = 1', null), {
             type: seqMY.QueryTypes.SELECT
           })
         )
-        .then((data) =>
-          log(`${tables.devices.target}: inserting`)
-          || bulkInsertMSSQL(tables.devices, data, true)
+        .then((data) => devices = data.map(mapDevice))
+        .then(() =>
+          log(`${tables.campaigns.target}: inserting`) ||
+          bulkInsertMSSQL(tables.campaigns, campaigns, false)
+        )
+        .then(() =>
+          log(`${tables.notifications.target}: inserting`) ||
+          bulkInsertMSSQL(tables.notifications, notifications, false)
+        )
+        .then(() =>
+          log(`${tables.devices.target}: inserting`) ||
+          bulkInsertMSSQL(tables.devices, devices, true)
         )
         .then(() => resolve())
         .catch((err) => log(`error ${err}`) || reject(err))

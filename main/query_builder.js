@@ -42,7 +42,7 @@ const getSelectQuery = (table, where) => `SELECT ${table.columns} FROM ${table.s
  */
 const getInsertQuery = (table, values, isAutoincrement) =>
   `${isAutoincrement ? 'SET IDENTITY_INSERT ' + table.target + ' ON' : ''}
-  INSERT INTO ${table.target} (${table.columns})
+  INSERT INTO ${table.target} (${table.columnsInsert ? table.columnsInsert : table.columns})
   VALUES
   ${getInsertValues(values)}
   ${isAutoincrement ? 'SET IDENTITY_INSERT ' + table.target + ' OFF' : ''}`;

@@ -75,23 +75,41 @@ const weather = [
     source: 'Locations',
     target: 'Locations',
     columns: 'id,city,country,location,alertsLastCheck,forecastNowLastCheck,forecast10DaysLastCheck,createdAt,updatedAt'
+  },
+  {
+    source: 'ApiProps',
+    target: 'ApiProps',
+    columns: 'id,callsPerInvocation,alertsInterval,forecastNowInterval,forecast10DaysInterval'
+  },
+  {
+    source: 'ForecastNows',
+    target: 'ForecastNows',
+    columns: 'id,locationId,locationFull,locationCity,locationState,locationStateName,locationCountry,locationCountryIso3116,locationZip,locationMagic,locationWmo,locationLatitude,locationLongitude,locationElevation,observationTime,localTime,weather,temperatureString,tempF,tempC,relativeHumidity,windString,windDir,windDegrees,windMph,windKph,pressureMb,pressureIn,pressureTrend,feelslikeString,feelslikeF,feelslikeC,icon',
+  },
+  {
+    source: 'Forecast10Days',
+    target: 'Forecast10Days',
+    columns: 'id,locationId,date,fullDateEpoch,fullDatePretty,fullDateDay,fullDateMonth,fullDateYear,fullDateYDay,fullDateMin,fullDateSec,fullDateIsdst,fullDateMonthName,fullDateMonthNameShort,fullDateWeekdayShort,fullDateWeekday,fullDateAmpm,fullDateTZShort,fullDateTZLong,icon,highFahrenheit,highCelsius,lowFahrenheit,lowCelsius,conditions'
   }
 ];
 const notifications = {
   campaigns: {
     source: 'Campaigns',
     target: 'Campaigns',
-    columns: 'id,campaignName,applicationName,description,groupId,groupName,isPublic,statusName,isActive,createBy,createByEmail,startDate,endDate,repeatEndDate,repeatPeriod,requesterId,createdAt,updatedAt'
+    columns: 'id,campaignName,applicationName,description,groupId,groupName,isPublic,statusName,isActive,createBy,createByEmail,startDate,endDate,repeatEndDate,repeatPeriod,requesterId,createdAt,updatedAt',
+    columnsInsert: 'id,campaignName,applicationId,description,groupId,groupName,isPublic,statusId,isActive,createBy,createByEmail,startDate,endDate,repeatEndDate,repeatPeriodId,requesterId,createdAt,updatedAt'
   },
   notifications: {
     source: 'Notifications',
     target: 'Notifications',
-    columns: 'id,campaignId,title,body,identityId,statusName,applicationName,typeName,createBy,startDate,endDate,isRead,isActive,readCount,firstReadDate,lastReadDate,additionalInfo,createdAt,updatedAt'
+    columns: 'id,campaignId,title,body,identityId,statusName,applicationName,typeName,createBy,startDate,endDate,isRead,isActive,readCount,firstReadDate,lastReadDate,additionalInfo,createdAt,updatedAt',
+    columnsInsert: 'id,campaignId,title,body,identityId,statusId,applicationId,typeId,createBy,startDate,endDate,isRead,isActive,readCount,firstReadDate,lastReadDate,additionalInfo,createdAt,updatedAt'
   },
   devices: {
     source: 'Devices',
     target: 'Devices',
-    columns: 'id,arn,token,identityId,userEmail,isActive,isPushNotificationsOn,isRemindersOn,platformId,timeZoneName,applicationName,createdAt,updatedAt'
+    columns: 'id,arn,token,identityId,userEmail,isActive,isPushNotificationsOn,isRemindersOn,platformId,timeZoneName,applicationName,createdAt,updatedAt',
+    columnsInsert: 'id,arn,token,identityId,userEmail,isActive,isPushNotificationsOn,isRemindersOn,platformId,timeZoneName,applicationId,createdAt,updatedAt'
   }
 };
 
